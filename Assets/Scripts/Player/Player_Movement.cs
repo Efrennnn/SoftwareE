@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
 using UnityEngine;
 public class Character_Controller : MonoBehaviour
@@ -13,6 +12,10 @@ public class Character_Controller : MonoBehaviour
         Normal,
         Dashing
     }
+    public static bool isDead;
+    public int damage = 1;
+    public GameObject GameOver;
+    
 
     [Header("Character Movement")]
     public float speed;
@@ -45,6 +48,7 @@ public class Character_Controller : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();     // Used for flipping the sprite
         state = State.Normal;
         dashSpeedCounter = dashSpeed;
+        isDead = false; 
 
         aim = transform.Find("Aim");
     }
@@ -151,4 +155,37 @@ public class Character_Controller : MonoBehaviour
         
         transform.Rotate(0, 180, 0);
     }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            HealthManager.instance.TakeDamage(damage);
+            animator.Play("GetHurt");
+            if (HealthManager.instance.health <= 0) {
+                isDead = true;
+                GameOver.SetActive(true);
+            } else {
+                StartCoroutine(GetHurt());
+            }
+        }
+    }
+
+    
+
+    IEnumerator GetHurt() {
+        Physics2D.IgnoreLayerCollision(6,7);
+        animator.SetBool("IsInvincible", true); // Assuming you have set this boolean in Animator
+
+        for (int i = 0; i < 10; i++) {
+            spriteRenderer.enabled = false;
+            yield return new WaitForSeconds(0.1f);
+            spriteRenderer.enabled = true;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        animator.SetBool("IsInvincible", false); // Disable invincibility
+        Physics2D.IgnoreLayerCollision(6,7, false);
+    }
+
 }

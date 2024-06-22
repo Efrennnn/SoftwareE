@@ -16,6 +16,8 @@ public class Detect : MonoBehaviour
     int dartCounter = 0;
     [SerializeField] public float moveSpeedReduction;
 
+
+
     void Start()
     {
         wanderingMovement = GetComponent<Wandering>();
@@ -81,4 +83,7 @@ public class Detect : MonoBehaviour
             animator.Play("Tiger_Sleeping");
         }
     }
+
+    
+
 }
